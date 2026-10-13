@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>New Document</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <h1>Start something new</h1>
+
+    <div class="choices">
+      <button class="choice word" data-kind="word">
+        <span class="badge" aria-hidden="true">W</span>
+        <span class="text">
+          <span class="name">Word document</span>
+          <span class="hint">Letters, résumés, reports</span>
+        </span>
+      </button>
+      <button class="choice excel" data-kind="excel">
+        <span class="badge" aria-hidden="true">X</span>
+        <span class="text">
+          <span class="name">Excel spreadsheet</span>
+          <span class="hint">Budgets, lists, tables</span>
+        </span>
+      </button>
+      <button class="choice ppt" data-kind="powerpoint">
+        <span class="badge" aria-hidden="true">P</span>
+        <span class="text">
+          <span class="name">PowerPoint presentation</span>
+          <span class="hint">Slides for a class or meeting</span>
+        </span>
+      </button>
+    </div>
+
+    <p id="status" class="status" role="status" aria-live="polite" hidden></p>
+
+    <section class="notice" aria-labelledby="notice-title">
+      <h2 id="notice-title">Save a copy before you leave</h2>
+      <p>This computer erases everything when your session ends, including your document. Before you sign out, save it to a USB drive, email it to yourself, or print it.</p>
+    </section>
+  </main>
+  <script src="creator.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

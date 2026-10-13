@@ -1,0 +1,76 @@
+:root {
+  --surface: #ffffff;
+  --ink: #17324d;
+  --muted: #4a5d70;
+  --bay: #2e6e8e;
+  --line: #d3dde4;
+  --word: #2b579a;
+  --excel: #217346;
+  --ppt: #c43e1c;
+  --done-bg: #e8f3ec;
+  --done-line: #1d6b3a;
+  --err: #a12a1c;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; background: transparent; }
+
+body {
+  color: var(--ink);
+  font: 18px/1.5 Roboto, "Segoe UI", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  padding: 3px; /* room for the focus ring */
+}
+
+.choices { display: grid; gap: 12px; }
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.choice:hover { border-color: #9fb3c3; background: #fafcfd; }
+.choice:focus-visible { outline: 3px solid var(--bay); outline-offset: 2px; }
+.choice:disabled { opacity: 0.55; cursor: progress; }
+
+.badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 700;
+}
+.word .badge  { background: var(--word); }
+.excel .badge { background: var(--excel); }
+.ppt .badge   { background: var(--ppt); }
+
+.text { display: flex; flex-direction: column; }
+.name { font-size: 20px; font-weight: 700; line-height: 1.3; }
+.hint { color: var(--muted); font-size: 16px; }
+
+.done {
+  margin-top: 20px;
+  padding: 18px 20px;
+  background: var(--done-bg);
+  border-left: 5px solid var(--done-line);
+  border-radius: 4px;
+}
+.done[hidden] { display: none; }
+.done h2 { margin: 0 0 6px; font-size: 20px; line-height: 1.3; }
+.done p { margin: 0; }
+.done .file { font-weight: 700; overflow-wrap: anywhere; }
+.done.error { background: #fbeceb; border-left-color: var(--err); }

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>New Document</title>
+  <link rel="stylesheet" href="embed.css">
+</head>
+<body>
+  <!-- Shown inside the New Document web app (https://aacplit.github.io/NewDocument/).
+       Because the patron's click lands on this extension page, the extension is
+       allowed to open the new file automatically. -->
+  <div class="choices">
+    <button class="choice word" data-kind="word">
+      <span class="badge" aria-hidden="true">W</span>
+      <span class="text">
+        <span class="name">Word document</span>
+        <span class="hint">Letters, résumés, reports</span>
+      </span>
+    </button>
+    <button class="choice excel" data-kind="excel">
+      <span class="badge" aria-hidden="true">X</span>
+      <span class="text">
+        <span class="name">Excel spreadsheet</span>
+        <span class="hint">Budgets, lists, tables</span>
+      </span>
+    </button>
+    <button class="choice ppt" data-kind="powerpoint">
+      <span class="badge" aria-hidden="true">P</span>
+      <span class="text">
+        <span class="name">PowerPoint presentation</span>
+        <span class="hint">Slides for a class or meeting</span>
+      </span>
+    </button>
+  </div>
+
+  <section id="done" class="done" role="status" aria-live="polite" hidden>
+    <h2 id="done-title"></h2>
+    <p id="done-body"></p>
+  </section>
+
+  <script src="creator.js"></script>
+  <script src="embed.js"></script>
+</body>
+</html>

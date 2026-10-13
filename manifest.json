@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "New Document",
+  "version": "1.0.1",
+  "description": "Start a new blank Word document, Excel spreadsheet, or PowerPoint presentation on this computer.",
+  "update_url": "https://aacplit.github.io/NewDocument/updates.xml",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Start a new document",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["embed.html", "embed.css", "embed.js", "creator.js"],
+      "matches": ["https://aacplit.github.io/*"]
+    }
+  ],
+  "permissions": ["downloads", "downloads.open"]
+}
