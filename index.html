@@ -18,7 +18,6 @@
       --bay: #2e6e8e;
       --line: #d3dde4;
       --buoy: #f2b705;
-      --buoy-ink: #1c1a10;
       --word: #2b579a;
       --excel: #217346;
       --ppt: #c43e1c;
@@ -40,12 +39,23 @@
     .wrap { max-width: 600px; margin: 0 auto; padding: 32px 24px 40px; }
 
     .library { margin: 0 0 10px; font-size: 15px; font-weight: 500; color: var(--bay); }
-
     h1 { margin: 0 0 6px; font-size: 32px; line-height: 1.15; font-weight: 700; letter-spacing: -0.01em; }
-
     .lede { margin: 0 0 24px; color: var(--muted); }
 
+    /* The extension's buttons, when the extension is installed */
+    #ext-frame {
+      display: block;
+      width: calc(100% + 6px);
+      height: 300px;
+      margin: -3px;
+      border: 0;
+    }
+    #ext-slot[hidden] { display: none; }
+
+    /* Built-in buttons, used when the extension isn't available */
     .choices { display: grid; gap: 12px; }
+    .deciding .choices { visibility: hidden; }
+    .choices[hidden] { display: none; }
 
     .choice {
       display: flex;
@@ -93,9 +103,8 @@
     }
     .done[hidden] { display: none; }
     .done h2 { margin: 0 0 6px; font-size: 20px; line-height: 1.3; }
+    .done p { margin: 0; }
     .done .file { font-weight: 700; overflow-wrap: anywhere; }
-    .done p { margin: 0 0 8px; }
-    .done p:last-child { margin-bottom: 0; }
     .done.error { background: #fbeceb; border-left-color: var(--err); }
 
     .notice {
@@ -109,20 +118,17 @@
     .notice p { margin: 0; font-size: 16px; }
 
     .help { margin: 20px 0 0; font-size: 16px; color: var(--muted); }
-
-    @media (prefers-reduced-motion: no-preference) {
-      .done:not([hidden]) { animation: appear 220ms ease-out; }
-      @keyframes appear { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
-    }
   </style>
 </head>
-<body>
+<body class="deciding">
   <div class="wrap">
     <p class="library">Anne Arundel County Public Library</p>
     <h1>Start a new document</h1>
-    <p class="lede">Choose the kind of file you want. A blank one will be saved to your Downloads folder.</p>
+    <p class="lede">Choose the kind of file you want. A blank one will be saved to your Downloads folder and opened for you.</p>
 
-    <div class="choices">
+    <div id="ext-slot" hidden></div>
+
+    <div id="choices" class="choices">
       <button class="choice word" data-kind="word">
         <span class="badge" aria-hidden="true">W</span>
         <span class="text">
@@ -160,6 +166,11 @@
   </div>
 
   <script>
+    // If the New Document extension is installed, its buttons are shown here instead of
+    // the built-in ones, because only a click inside the extension lets it open the file.
+    var EXT_ID = "bhdepjcpecahnohadpelblgfimkflond";
+    var EXT_ORIGIN = "chrome-extension://" + EXT_ID;
+
     var TEMPLATES = {
       word: {
         prefix: "Document", ext: "docx", label: "Word document",
@@ -178,10 +189,49 @@
       }
     };
 
+    var slot = document.getElementById("ext-slot");
+    var choices = document.getElementById("choices");
     var done = document.getElementById("done");
     var doneTitle = document.getElementById("done-title");
     var doneBody = document.getElementById("done-body");
+    var lede = document.querySelector(".lede");
     var buttons = Array.prototype.slice.call(document.querySelectorAll(".choice"));
+
+    /* ---------- Extension mode ---------- */
+
+    var frame = document.createElement("iframe");
+    frame.id = "ext-frame";
+    frame.title = "Choose a file type";
+    frame.src = EXT_ORIGIN + "/embed.html";
+    slot.appendChild(frame);
+
+    var decided = false;
+
+    function useBuiltIn() {
+      if (decided) return;
+      decided = true;
+      slot.remove();
+      lede.textContent = "Choose the kind of file you want. A blank one will be saved to your Downloads folder.";
+      document.body.classList.remove("deciding");
+    }
+
+    window.addEventListener("message", function (e) {
+      if (e.origin !== EXT_ORIGIN || !e.data || e.data.source !== "new-document-extension") return;
+      if (e.data.type === "ready" && !decided) {
+        decided = true;
+        slot.hidden = false;
+        choices.hidden = true;
+        document.body.classList.remove("deciding");
+      }
+      if (typeof e.data.height === "number" && e.data.height > 0) {
+        frame.style.height = (e.data.height + 6) + "px";
+      }
+    });
+
+    // If the extension hasn't answered quickly, it isn't installed (or is an older version).
+    setTimeout(useBuiltIn, 2000);
+
+    /* ---------- Built-in mode (download only) ---------- */
 
     // e.g. Document-2026-10-13-1430.docx
     function fileName(t) {
@@ -197,9 +247,17 @@
       return new Blob([bytes], { type: mime });
     }
 
-    function show(title, body, isError) {
+    function show(title, prefix, name, suffix, isError) {
       doneTitle.textContent = title;
-      doneBody.textContent = body;
+      doneBody.textContent = "";
+      doneBody.appendChild(document.createTextNode(prefix));
+      if (name) {
+        var f = document.createElement("span");
+        f.className = "file";
+        f.textContent = name;
+        doneBody.appendChild(f);
+      }
+      doneBody.appendChild(document.createTextNode(suffix));
       done.classList.toggle("error", !!isError);
       done.hidden = false;
     }
@@ -218,20 +276,11 @@
         a.click();
         a.remove();
         setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
-
-        doneTitle.textContent = "Your new " + t.label + " is ready";
-        doneBody.innerHTML = "";
-        doneBody.appendChild(document.createTextNode("It was saved to your Downloads folder as "));
-        var f = document.createElement("span");
-        f.className = "file";
-        f.textContent = name;
-        doneBody.appendChild(f);
-        doneBody.appendChild(document.createTextNode(". To open it, click the download notification, or open the Files app and look in Downloads."));
-        done.classList.remove("error");
-        done.hidden = false;
+        show("Your new " + t.label + " is ready", "It was saved to your Downloads folder as ", name,
+             ". To open it, click the download notification, or open the Files app and look in Downloads.");
       } catch (e) {
         console.error(e);
-        show("The file could not be created", "Try again, or see a staff member for help.", true);
+        show("The file could not be created", "Try again, or see a staff member for help.", "", "", true);
       } finally {
         setTimeout(function () { buttons.forEach(function (b) { b.disabled = false; }); }, 800);
       }
